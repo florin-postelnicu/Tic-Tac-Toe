@@ -17,8 +17,16 @@ while running:
     for event in pygame.event.get(): # search in the pygame.event for QUIT.
                              # to make it possible to close the window
         if event.type == pygame.QUIT: # if click on the close button,
-            #  end the program
-            running = False
+               #  end the program
+               running = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+
+            if pygame.mouse.get_pressed()[0]:
+                pos = pygame.mouse.get_pos()
+                print(pos[0]//200, pos[1]//200)
+
+
+
 
     surface.fill((0, 0, 0)) # fill the surface with color black
     grid.draw(surface)   # draw the grid on the board using draw method
