@@ -31,10 +31,12 @@ while running:
                 pos = pygame.mouse.get_pos()
                 # print(pos[0]//200, pos[1]//200)
                 grid.get_mouse(pos[0]//200, pos[1]//200, player)
-                if player == 'x':
-                    player = 'o'
-                else:
-                    player = 'x'
+                if grid.switch_player:
+
+                    if player == 'x':
+                        player = 'o'
+                    else:
+                        player = 'x'
 
                 grid.print_grid()
 
