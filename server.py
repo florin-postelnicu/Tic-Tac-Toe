@@ -4,13 +4,23 @@ this is the server module
 
 import pygame
 from grid import Grid
-
 import os
+
 os.environ['SDL_VIDEO_WINDOW_POS'] = '400,100'
 
 
 surface = pygame.display.set_mode((600,600))
 pygame.display.set_caption('Tic-tac-toe')
+
+import threading
+
+
+def create_thread(target):
+    thread = threading.Thread(target=target)
+    thread.daemon = True
+    thread.start()
+
+
 
 import socket
 
@@ -20,16 +30,26 @@ HOST = '127.0.0.1'
 PORT = 65432
 
 connection_established = False
+conn, addr = None, None
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
 sock.bind((HOST,PORT))
-
 sock.listen(1) # how many connections you need, for 5 players use 5
 
-conn, addr = sock.accept() # It waits for connections,
-                                         #  and it is a blocking method
 
+def recieve_data():
+    pass
+
+
+def waiting_for_connection():
+    global connection_established, conn, addr
+    conn, addr = sock.accept()
+    print('client is connected')
+    connection_established = True
+    recieve_data()
+
+
+create_thread(waiting_for_connection())
 
 
 grid = Grid()
@@ -57,10 +77,6 @@ while running:
                 grid.game_over = False
             elif event.key == pygame.K_ESCAPE:
                 running = False
-
-
     surface.fill((0,0,0))
-
     grid.draw(surface)
-
     pygame.display.flip()
