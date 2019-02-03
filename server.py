@@ -49,7 +49,7 @@ def waiting_for_connection():
     recieve_data()
 
 
-create_thread(waiting_for_connection())
+create_thread(waiting_for_connection)
 
 
 grid = Grid()
