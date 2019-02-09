@@ -30,8 +30,18 @@ sock.connect((HOST, PORT))
 
 
 def receive_data():
+    global turn
     while True:
         data = sock.recv(1024).decode()
+        data = data.split('-')
+        x , y = int(data[0]), int(data[1])
+        if data[2]== 'yourturn':
+            turn = True
+        if data[3] == 'False':
+            grid.game_over = True
+        if grid.get_cell_value(x, y) == 0:
+            grid.set_cell_value(x, y, 'X')
+
         print(data)
 
 
@@ -41,7 +51,9 @@ grid = Grid()
 
 
 running = True
-player = "X"
+player = "O"
+turn = False
+playing = 'True'
 
 while running:
     for event in pygame.event.get():
@@ -49,19 +61,21 @@ while running:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN and not grid.game_over:
             if pygame.mouse.get_pressed()[0]:
-                pos = pygame.mouse.get_pos()
-                # Create dat to send servere
-                cellX, cellY = pos[0] // 200, pos[1] // 200
-                grid.get_mouse(cellX,cellY, player)
-                send_data = '{}-{}'.format(cellX, cellY).encode()
-                sock.send(send_data) # THAT'S HOW CLIENT SENDS DATA
+                if turn and not grid.game_over:
+                    pos = pygame.mouse.get_pos()
+                    # Create dat to send servere
+                    cellX, cellY = pos[0] // 200, pos[1] // 200
+                    grid.get_mouse(cellX,cellY, player)
+                    send_data = '{}-{}-{}-{}'.format(cellX, cellY, 'yourturn', playing).encode()
+                    sock.send(send_data) # THAT'S HOW CLIENT SENDS DATA
+                    turn = False
 
 
-                if grid.switch_player:
-                    if player == "X":
-                        player = "O"
-                    else:
-                        player = "X"
+                # if grid.switch_player:
+                #     if player == "X":
+                #         player = "O"
+                #     else:
+                #         player = "X"
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE and grid.game_over:
                 grid.clear_grid()
