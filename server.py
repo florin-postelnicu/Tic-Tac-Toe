@@ -42,9 +42,19 @@ sock.bind((HOST,PORT))
 sock.listen(1) # how many connections you need, for 5 players use 5
 
 
-def recieve_data():
+def receive_data():
+    global turn
     while true:
         data = conn.recv(1024).decode()
+        data = data.split('-')
+        x, y = int(data[0]), int(data[1])
+        if data[2] == 'yourturn':
+            turn = True
+        if data[3] == 'False':
+            grid.game_over = True
+        if grid.get_cell_value(x, y) == 0:
+            grid.set_cell_value(x, y, 'O')
+
         print(data)
 
 
@@ -54,7 +64,7 @@ def waiting_for_connection():
     conn, addr = sock.accept()
     print('client is connected')
     connection_established = True
-    recieve_data()
+    receive_data()
 
 
 create_thread(waiting_for_connection)
@@ -65,6 +75,8 @@ grid = Grid()
 
 running = True
 player = "X"
+turn = True
+playing = 'True'
 
 while running:
     for event in pygame.event.get():
@@ -72,19 +84,21 @@ while running:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN and connection_established:
             if pygame.mouse.get_pressed()[0]:
-                pos = pygame.mouse.get_pos()
 
-                # work for sending to client
-                cellX, cellY = pos[0] // 200, pos[1] // 200
-                grid.get_mouse(cellX, cellY, player)
-                send_data = '{}-{}'.format(cellX, cellY).encode()
-                conn.send(send_data) # THAT'S HOW SERVER SENDS DATA
+                if turn and not grid.game_over:
+                    pos = pygame.mouse.get_pos()
+                    # work for sending to client
+                    cellX, cellY = pos[0] // 200, pos[1] // 200
+                    grid.get_mouse(cellX, cellY, player)
+                    send_data = '{}-{}-{}-{}'.format(cellX, cellY, 'yourturn', playing).encode()
+                    conn.send(send_data) # THAT'S HOW SERVER SENDS DATA
+                    turn = False
 
-                if grid.switch_player:
-                    if player == "X":
-                        player = "O"
-                    else:
-                        player = "X"
+                # if grid.switch_player:
+                #     if player == "X":
+                #         player = "O"
+                #     else:
+                #         player = "X"
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE and grid.game_over:
                 grid.clear_grid()
