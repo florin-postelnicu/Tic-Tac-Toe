@@ -1,8 +1,8 @@
 import pygame
 import os
 
-letterX = pygame.image.load(os.path.join('x-pixilart.png'))
-letterO = pygame.image.load(os.path.join( 'o-pixilart.png'))
+letterX = pygame.image.load(os.path.join('res', 'letterX.png'))
+letterO = pygame.image.load(os.path.join('res', 'letterO.png'))
 
 
 class Grid:
@@ -13,12 +13,9 @@ class Grid:
                            ((400,0), (400,600))] # second vertical line
 
         self.grid = [[0 for x in range(3)] for y in range(3)]
-        self.switch_player = True
         # search directions  N         NW        W       SW       S       SE      E       NE
         self.search_dirs = [(0, -1), (-1, -1), (-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1)]
         self.game_over = False
-
-
 
     def draw(self, surface):
         for line in self.grid_lines:
@@ -31,7 +28,6 @@ class Grid:
                 elif self.get_cell_value(x, y) == "O":
                     surface.blit(letterO, (x*200, y*200))
 
-
     def get_cell_value(self, x, y):
         return self.grid[y][x]
 
@@ -40,14 +36,8 @@ class Grid:
 
     def get_mouse(self, x, y, player):
         if self.get_cell_value(x, y) == 0:
-            self.switch_player = True
-            if player == "X":
-                self.set_cell_value(x, y, "X")
-            elif player == "O":
-                self.set_cell_value(x, y, "O")
+            self.set_cell_value(x, y, player)
             self.check_grid(x, y, player)
-        else:
-            self.switch_player = False
 
     def is_within_bounds(self, x, y):
         return x >= 0 and x < 3 and y >= 0 and y < 3
@@ -113,3 +103,4 @@ class Grid:
     def print_grid(self):
         for row in self.grid:
             print(row)
+
